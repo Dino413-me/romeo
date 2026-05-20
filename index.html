@@ -1,121 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Romeo & Juliet Study Game</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shakespeare Study Tool</title>
 
 <style>
-    body{
-        font-family: Arial, sans-serif;
-        background:#121212;
-        color:white;
-        text-align:center;
-        margin:0;
-        padding:20px;
-    }
+body{
+    font-family:Arial, sans-serif;
+    background:#121212;
+    color:white;
+    text-align:center;
+    padding:20px;
+}
 
-    h1{
-        margin-bottom:10px;
-    }
+.container{
+    max-width:1000px;
+    margin:auto;
+    background:#1e1e1e;
+    padding:20px;
+    border-radius:15px;
+}
 
-    .container{
-        max-width:900px;
-        margin:auto;
-        background:#1e1e1e;
-        padding:20px;
-        border-radius:15px;
-    }
+button{
+    padding:12px 20px;
+    margin:8px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    background:#4f46e5;
+    color:white;
+    font-size:16px;
+}
 
-    button{
-        padding:12px 20px;
-        margin:8px;
-        border:none;
-        border-radius:10px;
-        cursor:pointer;
-        font-size:16px;
-        background:#4f46e5;
-        color:white;
-    }
+button:hover{
+    opacity:0.9;
+}
 
-    button:hover{
-        opacity:0.9;
-    }
+.line{
+    background:#2a2a2a;
+    margin:10px 0;
+    padding:12px;
+    border-radius:10px;
+    cursor:grab;
+}
 
-    .line{
-        background:#2a2a2a;
-        margin:10px 0;
-        padding:12px;
-        border-radius:10px;
-        cursor:grab;
-    }
+input{
+    padding:12px;
+    width:80%;
+    border:none;
+    border-radius:8px;
+    font-size:16px;
+}
 
-    input{
-        padding:10px;
-        width:80%;
-        margin-top:10px;
-        border-radius:8px;
-        border:none;
-        font-size:16px;
-    }
+.choiceBtn{
+    display:block;
+    width:80%;
+    margin:10px auto;
+}
 
-    #result{
-        margin-top:20px;
-        font-size:20px;
-        font-weight:bold;
-    }
-
-    .hidden{
-        display:none;
-    }
+#result{
+    margin-top:20px;
+    font-size:22px;
+    font-weight:bold;
+}
 </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Romeo & Juliet Study Game</h1>
 
-    <button onclick="startOrdering()">Order the Lines</button>
-    <button onclick="startFillBlank()">Fill in the Blank</button>
+<h1>Romeo & Juliet Study Game</h1>
 
-    <div id="game"></div>
-    <div id="result"></div>
+<button onclick="startOrdering()">Order Lines</button>
+<button onclick="startTyping()">Type Entire Line</button>
+<button onclick="startFillBlank()">Fill Blank</button>
+<button onclick="startMultipleChoice()">Multiple Choice Blank</button>
+
+<div id="game"></div>
+<div id="result"></div>
+
 </div>
 
 <script>
+
 const lines = [
-"Two households, both alike in dignity",
-"In fair Verona, where we lay our scene",
+"Two households both alike in dignity",
+"In fair Verona where we lay our scene",
 "From ancient grudge break to new mutiny",
 "Where civil blood makes civil hands unclean",
 "From forth the fatal loins of these two foes",
-"A pair of star-crossed lovers take their life",
+"A pair of star crossed lovers take their life",
 "Whose misadventured piteous overthrows",
-"Doth with their death bury their parents’ strife",
-"The fearful passage of their death-marked love",
-"And the continuance of their parents’ rage",
-"Which, but their children’s end, naught could remove",
-"Is now the two hours’ traffic of our stage",
-"The which, if you with patient ears attend",
-"What here shall miss, our toil shall strive to mend"
+"Doth with their death bury their parents strife",
+"The fearful passage of their death marked love",
+"And the continuance of their parents rage",
+"Which but their childrens end naught could remove",
+"Is now the two hours traffic of our stage",
+"The which if you with patient ears attend",
+"What here shall miss our toil shall strive to mend"
 ];
 
 const game = document.getElementById("game");
 const result = document.getElementById("result");
 
-function shuffle(array){
-    return array.sort(() => Math.random() - 0.5);
+function shuffle(arr){
+    return arr.sort(() => Math.random() - 0.5);
 }
 
+//////////////////////////
+// ORDER MODE
+//////////////////////////
+
 function startOrdering(){
+
     result.innerHTML = "";
-    game.innerHTML = "<h2>Put the lines in the correct order</h2>";
+    game.innerHTML = "<h2>Put the lines in order</h2>";
 
     let shuffled = [...lines];
     shuffle(shuffled);
 
     shuffled.forEach(line => {
+
         const div = document.createElement("div");
+
         div.className = "line";
         div.draggable = true;
         div.innerText = line;
@@ -127,10 +135,11 @@ function startOrdering(){
         game.appendChild(div);
     });
 
-    const checkBtn = document.createElement("button");
-    checkBtn.innerText = "Check Order";
-    checkBtn.onclick = checkOrder;
-    game.appendChild(checkBtn);
+    const btn = document.createElement("button");
+    btn.innerText = "Check";
+    btn.onclick = checkOrder;
+
+    game.appendChild(btn);
 }
 
 let dragged;
@@ -144,12 +153,15 @@ function dragOver(e){
 }
 
 function drop(e){
+
     e.preventDefault();
 
     if(this !== dragged){
-        let all = [...game.querySelectorAll(".line")];
-        let draggedIndex = all.indexOf(dragged);
-        let targetIndex = all.indexOf(this);
+
+        const all = [...game.querySelectorAll(".line")];
+
+        const draggedIndex = all.indexOf(dragged);
+        const targetIndex = all.indexOf(this);
 
         if(draggedIndex < targetIndex){
             this.after(dragged);
@@ -160,57 +172,221 @@ function drop(e){
 }
 
 function checkOrder(){
-    let current = [...game.querySelectorAll(".line")]
-        .map(div => div.innerText);
 
-    let correct = 0;
+    const current = [...game.querySelectorAll(".line")]
+    .map(div => div.innerText);
 
-    for(let i=0; i<lines.length; i++){
+    let score = 0;
+
+    for(let i=0;i<lines.length;i++){
+
         if(current[i] === lines[i]){
-            correct++;
+            score++;
         }
     }
 
-    result.innerHTML = `You got ${correct}/${lines.length} correct!`;
+    result.innerHTML = `Score: ${score}/${lines.length}`;
 }
 
-function startFillBlank(){
+//////////////////////////
+// TYPE ENTIRE LINE
+//////////////////////////
+
+let currentLine = "";
+
+function startTyping(){
+
     result.innerHTML = "";
 
-    const randomLine = lines[Math.floor(Math.random()*lines.length)];
+    currentLine = lines[
+        Math.floor(Math.random()*lines.length)
+    ];
 
-    const words = randomLine.split(" ");
-    const blankIndex = Math.floor(Math.random()*words.length);
+    game.innerHTML = `
+        <h2>Type the Entire Line</h2>
+        <p style="font-size:24px;">
+            Memorize this:
+        </p>
 
-    const answer = words[blankIndex]
-        .replace(/[.,;’]/g,"");
+        <p style="font-size:28px; color:#60a5fa;">
+            ${currentLine}
+        </p>
+
+        <button onclick="hideLine()">
+            Hide Line
+        </button>
+    `;
+}
+
+function hideLine(){
+
+    game.innerHTML = `
+        <h2>Type the Entire Line</h2>
+
+        <input id="typingInput"
+        placeholder="Type the line">
+
+        <br><br>
+
+        <button onclick="checkTyping()">
+            Check
+        </button>
+    `;
+}
+
+function checkTyping(){
+
+    const answer =
+    document.getElementById("typingInput")
+    .value
+    .trim()
+    .toLowerCase();
+
+    if(answer === currentLine.toLowerCase()){
+
+        result.innerHTML = "Correct!";
+
+    } else {
+
+        result.innerHTML =
+        `Wrong!<br><br>
+        Correct line:<br>
+        ${currentLine}`;
+    }
+}
+
+//////////////////////////
+// FILL BLANK
+//////////////////////////
+
+function startFillBlank(){
+
+    result.innerHTML = "";
+
+    const line =
+    lines[Math.floor(Math.random()*lines.length)];
+
+    const words = line.split(" ");
+
+    const blankIndex =
+    Math.floor(Math.random()*words.length);
+
+    const answer = words[blankIndex];
 
     words[blankIndex] = "_____";
 
     game.innerHTML = `
         <h2>Fill in the Blank</h2>
-        <p style="font-size:24px;">${words.join(" ")}</p>
-        <input id="blankInput" placeholder="Type missing word">
-        <br>
+
+        <p style="font-size:30px;">
+            ${words.join(" ")}
+        </p>
+
+        <input id="blankInput"
+        placeholder="Missing word">
+
+        <br><br>
+
         <button onclick="checkBlank('${answer.toLowerCase()}')">
-            Check Answer
+            Check
         </button>
     `;
 }
 
 function checkBlank(answer){
-    const userAnswer = document
-        .getElementById("blankInput")
-        .value
-        .trim()
-        .toLowerCase();
 
-    if(userAnswer === answer){
+    const user =
+    document.getElementById("blankInput")
+    .value
+    .trim()
+    .toLowerCase();
+
+    if(user === answer){
+
         result.innerHTML = "Correct!";
+
     } else {
-        result.innerHTML = `Wrong! Correct answer: ${answer}`;
+
+        result.innerHTML =
+        `Wrong! Correct answer: ${answer}`;
     }
 }
+
+//////////////////////////
+// MULTIPLE CHOICE
+//////////////////////////
+
+function startMultipleChoice(){
+
+    result.innerHTML = "";
+
+    const line =
+    lines[Math.floor(Math.random()*lines.length)];
+
+    const words = line.split(" ");
+
+    const blankIndex =
+    Math.floor(Math.random()*words.length);
+
+    const answer = words[blankIndex];
+
+    words[blankIndex] = "_____";
+
+    let choices = [answer];
+
+    while(choices.length < 4){
+
+        const randomLine =
+        lines[Math.floor(Math.random()*lines.length)];
+
+        const randomWords =
+        randomLine.split(" ");
+
+        const randomWord =
+        randomWords[
+            Math.floor(Math.random()*randomWords.length)
+        ];
+
+        if(!choices.includes(randomWord)){
+            choices.push(randomWord);
+        }
+    }
+
+    shuffle(choices);
+
+    game.innerHTML = `
+        <h2>Multiple Choice Blank</h2>
+
+        <p style="font-size:30px;">
+            ${words.join(" ")}
+        </p>
+    `;
+
+    choices.forEach(choice => {
+
+        const btn = document.createElement("button");
+
+        btn.className = "choiceBtn";
+
+        btn.innerText = choice;
+
+        btn.onclick = () => {
+
+            if(choice.toLowerCase() === answer.toLowerCase()){
+
+                result.innerHTML = "Correct!";
+
+            } else {
+
+                result.innerHTML =
+                `Wrong! Correct answer: ${answer}`;
+            }
+        };
+
+        game.appendChild(btn);
+    });
+}
+
 </script>
 
 </body>
