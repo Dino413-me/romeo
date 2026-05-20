@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Romeo & Juliet Study Game</title>
+
+<style>
+    body{
+        font-family: Arial, sans-serif;
+        background:#121212;
+        color:white;
+        text-align:center;
+        margin:0;
+        padding:20px;
+    }
+
+    h1{
+        margin-bottom:10px;
+    }
+
+    .container{
+        max-width:900px;
+        margin:auto;
+        background:#1e1e1e;
+        padding:20px;
+        border-radius:15px;
+    }
+
+    button{
+        padding:12px 20px;
+        margin:8px;
+        border:none;
+        border-radius:10px;
+        cursor:pointer;
+        font-size:16px;
+        background:#4f46e5;
+        color:white;
+    }
+
+    button:hover{
+        opacity:0.9;
+    }
+
+    .line{
+        background:#2a2a2a;
+        margin:10px 0;
+        padding:12px;
+        border-radius:10px;
+        cursor:grab;
+    }
+
+    input{
+        padding:10px;
+        width:80%;
+        margin-top:10px;
+        border-radius:8px;
+        border:none;
+        font-size:16px;
+    }
+
+    #result{
+        margin-top:20px;
+        font-size:20px;
+        font-weight:bold;
+    }
+
+    .hidden{
+        display:none;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Romeo & Juliet Study Game</h1>
+
+    <button onclick="startOrdering()">Order the Lines</button>
+    <button onclick="startFillBlank()">Fill in the Blank</button>
+
+    <div id="game"></div>
+    <div id="result"></div>
+</div>
+
+<script>
+const lines = [
+"Two households, both alike in dignity",
+"In fair Verona, where we lay our scene",
+"From ancient grudge break to new mutiny",
+"Where civil blood makes civil hands unclean",
+"From forth the fatal loins of these two foes",
+"A pair of star-crossed lovers take their life",
+"Whose misadventured piteous overthrows",
+"Doth with their death bury their parents’ strife",
+"The fearful passage of their death-marked love",
+"And the continuance of their parents’ rage",
+"Which, but their children’s end, naught could remove",
+"Is now the two hours’ traffic of our stage",
+"The which, if you with patient ears attend",
+"What here shall miss, our toil shall strive to mend"
+];
+
+const game = document.getElementById("game");
+const result = document.getElementById("result");
+
+function shuffle(array){
+    return array.sort(() => Math.random() - 0.5);
+}
+
+function startOrdering(){
+    result.innerHTML = "";
+    game.innerHTML = "<h2>Put the lines in the correct order</h2>";
+
+    let shuffled = [...lines];
+    shuffle(shuffled);
+
+    shuffled.forEach(line => {
+        const div = document.createElement("div");
+        div.className = "line";
+        div.draggable = true;
+        div.innerText = line;
+
+        div.addEventListener("dragstart", dragStart);
+        div.addEventListener("dragover", dragOver);
+        div.addEventListener("drop", drop);
+
+        game.appendChild(div);
+    });
+
+    const checkBtn = document.createElement("button");
+    checkBtn.innerText = "Check Order";
+    checkBtn.onclick = checkOrder;
+    game.appendChild(checkBtn);
+}
+
+let dragged;
+
+function dragStart(){
+    dragged = this;
+}
+
+function dragOver(e){
+    e.preventDefault();
+}
+
+function drop(e){
+    e.preventDefault();
+
+    if(this !== dragged){
+        let all = [...game.querySelectorAll(".line")];
+        let draggedIndex = all.indexOf(dragged);
+        let targetIndex = all.indexOf(this);
+
+        if(draggedIndex < targetIndex){
+            this.after(dragged);
+        } else {
+            this.before(dragged);
+        }
+    }
+}
+
+function checkOrder(){
+    let current = [...game.querySelectorAll(".line")]
+        .map(div => div.innerText);
+
+    let correct = 0;
+
+    for(let i=0; i<lines.length; i++){
+        if(current[i] === lines[i]){
+            correct++;
+        }
+    }
+
+    result.innerHTML = `You got ${correct}/${lines.length} correct!`;
+}
+
+function startFillBlank(){
+    result.innerHTML = "";
+
+    const randomLine = lines[Math.floor(Math.random()*lines.length)];
+
+    const words = randomLine.split(" ");
+    const blankIndex = Math.floor(Math.random()*words.length);
+
+    const answer = words[blankIndex]
+        .replace(/[.,;’]/g,"");
+
+    words[blankIndex] = "_____";
+
+    game.innerHTML = `
+        <h2>Fill in the Blank</h2>
+        <p style="font-size:24px;">${words.join(" ")}</p>
+        <input id="blankInput" placeholder="Type missing word">
+        <br>
+        <button onclick="checkBlank('${answer.toLowerCase()}')">
+            Check Answer
+        </button>
+    `;
+}
+
+function checkBlank(answer){
+    const userAnswer = document
+        .getElementById("blankInput")
+        .value
+        .trim()
+        .toLowerCase();
+
+    if(userAnswer === answer){
+        result.innerHTML = "Correct!";
+    } else {
+        result.innerHTML = `Wrong! Correct answer: ${answer}`;
+    }
+}
+</script>
+
+</body>
+</html>
