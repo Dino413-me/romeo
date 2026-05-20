@@ -1,254 +1,198 @@
-// TYPE ENTIRE LINE
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Game Fixed</title>
 
-function checkTyping(){
+<style>
+body{
+    font-family: Arial;
+    background:#0f172a;
+    color:white;
+    text-align:center;
+    padding:20px;
+}
 
-    const user =
-    document.getElementById("typingInput")
-    .value
-    .trim();
+.container{
+    max-width:1000px;
+    margin:auto;
+    background:#111827;
+    padding:20px;
+    border-radius:15px;
+}
+
+button{
+    background:#4f46e5;
+    color:white;
+    border:none;
+    padding:10px 15px;
+    margin:5px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+input{
+    padding:10px;
+    width:80%;
+    border-radius:8px;
+    border:none;
+    margin-top:10px;
+}
+
+.correctBox{
+    background:#14532d;
+    color:#86efac;
+    padding:15px;
+    border-radius:10px;
+    margin-top:15px;
+}
+
+.wrongBox{
+    background:#7f1d1d;
+    color:#fca5a5;
+    padding:15px;
+    border-radius:10px;
+    margin-top:15px;
+}
+
+.green{
+    background:#14532d;
+    padding:8px;
+    border-radius:8px;
+    margin-top:5px;
+}
+
+.red{
+    background:#991b1b;
+    padding:8px;
+    border-radius:8px;
+    margin-top:5px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Study Tool Fixed</h1>
+
+<button onclick="startTyping()">Type Line</button>
+<button onclick="startFill()">Fill Blank</button>
+
+<div id="game"></div>
+<div id="result"></div>
+
+</div>
+
+<script>
+
+const lines = [
+"Two households both alike in dignity",
+"In fair Verona where we lay our scene",
+"From ancient grudge break to new mutiny",
+"Where civil blood makes civil hands unclean"
+];
+
+let currentLine = "";
+
+const game = document.getElementById("game");
+const result = document.getElementById("result");
+
+//////////////////////
+// TYPE MODE
+//////////////////////
+
+function startTyping(){
+
+    currentLine = lines[Math.floor(Math.random()*lines.length)];
+
+    game.innerHTML = `
+        <h2>Type the line</h2>
+        <p>${currentLine}</p>
+        <button onclick="hideLine()">Hide</button>
+    `;
+
+    result.innerHTML = "";
+}
+
+function hideLine(){
+
+    game.innerHTML = `
+        <h2>Type it</h2>
+        <input id="typeInput">
+        <br>
+        <button onclick="checkType()">Check</button>
+    `;
+}
+
+function checkType(){
+
+    const user = document.getElementById("typeInput").value.trim();
 
     if(user.toLowerCase() === currentLine.toLowerCase()){
 
-        result.innerHTML = `
-        <div style="
-            background:#14532d;
-            color:#86efac;
-            padding:15px;
-            border-radius:10px;
-            font-size:22px;">
-            Correct!
-        </div>`;
-
-        updateScore(true);
+        result.innerHTML =
+        `<div class="correctBox">Correct!</div>`;
 
     } else {
 
-        result.innerHTML = `
-        <div style="
-            background:#7f1d1d;
-            color:#fca5a5;
-            padding:15px;
-            border-radius:10px;">
-            <b>Wrong!</b><br><br>
-
-            <div style="color:#fca5a5;">
-            Your answer:
-            </div>
-
-            <div style="
-                background:#991b1b;
-                padding:10px;
-                border-radius:8px;
-                margin-top:5px;">
-                ${user}
-            </div>
-
-            <br>
-
-            <div style="color:#86efac;">
-            Correct answer:
-            </div>
-
-            <div style="
-                background:#14532d;
-                padding:10px;
-                border-radius:8px;
-                margin-top:5px;">
-                ${currentLine}
-            </div>
+        result.innerHTML =
+        `<div class="wrongBox">
+            Wrong!
+            <div class="red">Your answer: ${user}</div>
+            <div class="green">Correct: ${currentLine}</div>
         </div>`;
-
-        updateScore(false);
     }
 }
 
-////////////////////////////////////////////////////
-// FILL BLANK
-////////////////////////////////////////////////////
+//////////////////////
+// FILL BLANK MODE
+//////////////////////
 
-function checkBlank(answers){
+function startFill(){
 
-    const user =
-    document.getElementById("blankInput")
-    .value
-    .split(",")
-    .map(x => x.trim());
+    const line = lines[Math.floor(Math.random()*lines.length)];
+    const words = line.split(" ");
 
-    const correct =
-    JSON.stringify(
-        user.map(x => x.toLowerCase())
-    ) ===
-    JSON.stringify(
-        answers.map(x => x.toLowerCase())
-    );
+    const index = Math.floor(Math.random()*words.length);
+    const answer = words[index];
 
-    if(correct){
+    words[index] = "_____";
 
-        result.innerHTML = `
-        <div style="
-            background:#14532d;
-            color:#86efac;
-            padding:15px;
-            border-radius:10px;
-            font-size:22px;">
-            Correct!
-        </div>`;
+    game.innerHTML = `
+        <h2>Fill the blank</h2>
+        <p>${words.join(" ")}</p>
+        <input id="fillInput">
+        <br>
+        <button onclick="checkFill('${answer}')">Check</button>
+    `;
 
-        updateScore(true);
+    result.innerHTML = "";
+}
+
+function checkFill(answer){
+
+    const user = document.getElementById("fillInput").value.trim();
+
+    if(user.toLowerCase() === answer.toLowerCase()){
+
+        result.innerHTML =
+        `<div class="correctBox">Correct!</div>`;
 
     } else {
 
-        result.innerHTML = `
-        <div style="
-            background:#7f1d1d;
-            color:#fca5a5;
-            padding:15px;
-            border-radius:10px;">
-
-            <b>Wrong!</b><br><br>
-
-            <div style="color:#fca5a5;">
-            Your answers:
-            </div>
-
-            <div style="
-                background:#991b1b;
-                padding:10px;
-                border-radius:8px;
-                margin-top:5px;">
-                ${user.join(", ")}
-            </div>
-
-            <br>
-
-            <div style="color:#86efac;">
-            Correct answers:
-            </div>
-
-            <div style="
-                background:#14532d;
-                padding:10px;
-                border-radius:8px;
-                margin-top:5px;">
-                ${answers.join(", ")}
-            </div>
+        result.innerHTML =
+        `<div class="wrongBox">
+            Wrong!
+            <div class="red">Your answer: ${user}</div>
+            <div class="green">Correct: ${answer}</div>
         </div>`;
-
-        updateScore(false);
     }
 }
 
-////////////////////////////////////////////////////
-// MULTIPLE CHOICE
-////////////////////////////////////////////////////
+</script>
 
-// INSIDE choices.forEach(choice => { ... })
-
-btn.onclick = () => {
-
-    if(choice === answer){
-
-        result.innerHTML = `
-        <div style="
-            background:#14532d;
-            color:#86efac;
-            padding:15px;
-            border-radius:10px;
-            font-size:22px;">
-            Correct!
-        </div>`;
-
-        updateScore(true);
-
-    } else {
-
-        result.innerHTML = `
-        <div style="
-            background:#7f1d1d;
-            color:#fca5a5;
-            padding:15px;
-            border-radius:10px;">
-
-            <b>Wrong!</b><br><br>
-
-            <div style="
-                background:#991b1b;
-                padding:10px;
-                border-radius:8px;">
-                You picked: ${choice}
-            </div>
-
-            <br>
-
-            <div style="
-                background:#14532d;
-                color:#86efac;
-                padding:10px;
-                border-radius:8px;">
-                Correct: ${answer}
-            </div>
-        </div>`;
-
-        updateScore(false);
-    }
-};
-
-////////////////////////////////////////////////////
-// LIGHTNING MODE
-////////////////////////////////////////////////////
-
-function checkLightning(){
-
-    clearInterval(timer);
-
-    const user =
-    document.getElementById("lightningInput")
-    .value
-    .trim();
-
-    if(user.toLowerCase() === currentLine.toLowerCase()){
-
-        result.innerHTML = `
-        <div style="
-            background:#14532d;
-            color:#86efac;
-            padding:15px;
-            border-radius:10px;
-            font-size:22px;">
-            Correct!
-        </div>`;
-
-        updateScore(true);
-
-    } else {
-
-        result.innerHTML = `
-        <div style="
-            background:#7f1d1d;
-            color:#fca5a5;
-            padding:15px;
-            border-radius:10px;">
-
-            <b>Wrong!</b><br><br>
-
-            <div style="
-                background:#991b1b;
-                padding:10px;
-                border-radius:8px;">
-                ${user}
-            </div>
-
-            <br>
-
-            <div style="
-                background:#14532d;
-                color:#86efac;
-                padding:10px;
-                border-radius:8px;">
-                ${currentLine}
-            </div>
-        </div>`;
-
-        updateScore(false);
-    }
-}
+</body>
+</html>
