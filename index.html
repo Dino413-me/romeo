@@ -3,33 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shakespeare Study Tool</title>
+<title>Romeo & Juliet Study Pro</title>
 
 <style>
+
 body{
-    font-family:Arial, sans-serif;
-    background:#121212;
+    background:#0f172a;
     color:white;
+    font-family:Arial, sans-serif;
     text-align:center;
     padding:20px;
 }
 
 .container{
-    max-width:1000px;
+    max-width:1100px;
     margin:auto;
-    background:#1e1e1e;
-    padding:20px;
-    border-radius:15px;
+    background:#111827;
+    padding:25px;
+    border-radius:20px;
 }
 
 button{
-    padding:12px 20px;
-    margin:8px;
-    border:none;
-    border-radius:10px;
-    cursor:pointer;
     background:#4f46e5;
     color:white;
+    border:none;
+    padding:12px 20px;
+    margin:8px;
+    border-radius:10px;
+    cursor:pointer;
     font-size:16px;
 }
 
@@ -37,20 +38,20 @@ button:hover{
     opacity:0.9;
 }
 
-.line{
-    background:#2a2a2a;
-    margin:10px 0;
-    padding:12px;
-    border-radius:10px;
-    cursor:grab;
-}
-
 input{
     padding:12px;
     width:80%;
     border:none;
-    border-radius:8px;
+    border-radius:10px;
     font-size:16px;
+}
+
+.line{
+    background:#1f2937;
+    padding:12px;
+    margin:10px 0;
+    border-radius:10px;
+    cursor:grab;
 }
 
 .choiceBtn{
@@ -64,18 +65,57 @@ input{
     font-size:22px;
     font-weight:bold;
 }
+
+#scoreBoard{
+    margin-top:15px;
+    font-size:18px;
+}
+
+.correct{
+    color:#22c55e;
+}
+
+.wrong{
+    color:#ef4444;
+}
+
+.progress{
+    width:100%;
+    height:20px;
+    background:#1f2937;
+    border-radius:10px;
+    overflow:hidden;
+    margin-top:20px;
+}
+
+.progressFill{
+    height:100%;
+    width:0%;
+    background:#22c55e;
+}
+
 </style>
 </head>
 <body>
 
 <div class="container">
 
-<h1>Romeo & Juliet Study Game</h1>
+<h1>Romeo & Juliet Study Pro</h1>
 
 <button onclick="startOrdering()">Order Lines</button>
 <button onclick="startTyping()">Type Entire Line</button>
 <button onclick="startFillBlank()">Fill Blank</button>
-<button onclick="startMultipleChoice()">Multiple Choice Blank</button>
+<button onclick="startMultipleChoice()">Multiple Choice</button>
+<button onclick="startLightning()">Lightning Mode</button>
+
+<div id="scoreBoard">
+Score: <span id="score">0</span> |
+Streak: <span id="streak">0</span>
+</div>
+
+<div class="progress">
+<div class="progressFill" id="progressFill"></div>
+</div>
 
 <div id="game"></div>
 <div id="result"></div>
@@ -85,6 +125,7 @@ input{
 <script>
 
 const lines = [
+
 "Two households both alike in dignity",
 "In fair Verona where we lay our scene",
 "From ancient grudge break to new mutiny",
@@ -99,25 +140,58 @@ const lines = [
 "Is now the two hours traffic of our stage",
 "The which if you with patient ears attend",
 "What here shall miss our toil shall strive to mend"
+
 ];
 
 const game = document.getElementById("game");
 const result = document.getElementById("result");
 
+let score = 0;
+let streak = 0;
+let completed = 0;
+
+function updateScore(correct){
+
+    if(correct){
+
+        score++;
+        streak++;
+
+    } else {
+
+        streak = 0;
+    }
+
+    completed++;
+
+    document.getElementById("score").innerText = score;
+    document.getElementById("streak").innerText = streak;
+
+    const percent =
+    Math.min((completed/20)*100,100);
+
+    document.getElementById("progressFill")
+    .style.width = percent + "%";
+}
+
 function shuffle(arr){
+
     return arr.sort(() => Math.random() - 0.5);
 }
 
-//////////////////////////
+////////////////////////////////////////////////////
 // ORDER MODE
-//////////////////////////
+////////////////////////////////////////////////////
 
 function startOrdering(){
 
     result.innerHTML = "";
-    game.innerHTML = "<h2>Put the lines in order</h2>";
+
+    game.innerHTML =
+    "<h2>Put the lines in order</h2>";
 
     let shuffled = [...lines];
+
     shuffle(shuffled);
 
     shuffled.forEach(line => {
@@ -136,7 +210,9 @@ function startOrdering(){
     });
 
     const btn = document.createElement("button");
+
     btn.innerText = "Check";
+
     btn.onclick = checkOrder;
 
     game.appendChild(btn);
@@ -145,10 +221,12 @@ function startOrdering(){
 let dragged;
 
 function dragStart(){
+
     dragged = this;
 }
 
 function dragOver(e){
+
     e.preventDefault();
 }
 
@@ -158,14 +236,21 @@ function drop(e){
 
     if(this !== dragged){
 
-        const all = [...game.querySelectorAll(".line")];
+        const all =
+        [...game.querySelectorAll(".line")];
 
-        const draggedIndex = all.indexOf(dragged);
-        const targetIndex = all.indexOf(this);
+        const draggedIndex =
+        all.indexOf(dragged);
+
+        const targetIndex =
+        all.indexOf(this);
 
         if(draggedIndex < targetIndex){
+
             this.after(dragged);
+
         } else {
+
             this.before(dragged);
         }
     }
@@ -173,24 +258,29 @@ function drop(e){
 
 function checkOrder(){
 
-    const current = [...game.querySelectorAll(".line")]
+    const current =
+    [...game.querySelectorAll(".line")]
     .map(div => div.innerText);
 
-    let score = 0;
+    let correct = 0;
 
     for(let i=0;i<lines.length;i++){
 
         if(current[i] === lines[i]){
-            score++;
+
+            correct++;
         }
     }
 
-    result.innerHTML = `Score: ${score}/${lines.length}`;
+    result.innerHTML =
+    `You got ${correct}/${lines.length}`;
+
+    updateScore(correct === lines.length);
 }
 
-//////////////////////////
+////////////////////////////////////////////////////
 // TYPE ENTIRE LINE
-//////////////////////////
+////////////////////////////////////////////////////
 
 let currentLine = "";
 
@@ -198,66 +288,75 @@ function startTyping(){
 
     result.innerHTML = "";
 
-    currentLine = lines[
-        Math.floor(Math.random()*lines.length)
-    ];
+    currentLine =
+    lines[Math.floor(Math.random()*lines.length)];
 
     game.innerHTML = `
-        <h2>Type the Entire Line</h2>
-        <p style="font-size:24px;">
-            Memorize this:
-        </p>
 
-        <p style="font-size:28px; color:#60a5fa;">
-            ${currentLine}
-        </p>
+    <h2>Memorize the line</h2>
 
-        <button onclick="hideLine()">
-            Hide Line
-        </button>
+    <p style="font-size:30px;color:#60a5fa;">
+    ${currentLine}
+    </p>
+
+    <button onclick="hideLine()">
+    Hide Line
+    </button>
+
     `;
 }
 
 function hideLine(){
 
     game.innerHTML = `
-        <h2>Type the Entire Line</h2>
 
-        <input id="typingInput"
-        placeholder="Type the line">
+    <h2>Type the full line</h2>
 
-        <br><br>
+    <input id="typingInput"
+    placeholder="Type the line">
 
-        <button onclick="checkTyping()">
-            Check
-        </button>
+    <br><br>
+
+    <button onclick="checkTyping()">
+    Check
+    </button>
+
     `;
 }
 
 function checkTyping(){
 
-    const answer =
+    const user =
     document.getElementById("typingInput")
     .value
     .trim()
     .toLowerCase();
 
-    if(answer === currentLine.toLowerCase()){
+    if(user === currentLine.toLowerCase()){
 
-        result.innerHTML = "Correct!";
+        result.innerHTML =
+        `<span class="correct">
+        Correct!
+        </span>`;
+
+        updateScore(true);
 
     } else {
 
         result.innerHTML =
-        `Wrong!<br><br>
-        Correct line:<br>
+        `<span class="wrong">
+        Wrong!
+        </span>
+        <br><br>
         ${currentLine}`;
+
+        updateScore(false);
     }
 }
 
-//////////////////////////
+////////////////////////////////////////////////////
 // FILL BLANK
-//////////////////////////
+////////////////////////////////////////////////////
 
 function startFillBlank(){
 
@@ -268,53 +367,92 @@ function startFillBlank(){
 
     const words = line.split(" ");
 
-    const blankIndex =
-    Math.floor(Math.random()*words.length);
+    const blankIndexes = [];
 
-    const answer = words[blankIndex];
+    const blanks =
+    Math.floor(Math.random()*3)+1;
 
-    words[blankIndex] = "_____";
+    while(blankIndexes.length < blanks){
+
+        const rand =
+        Math.floor(Math.random()*words.length);
+
+        if(!blankIndexes.includes(rand)){
+
+            blankIndexes.push(rand);
+        }
+    }
+
+    const answers = [];
+
+    blankIndexes.forEach(index => {
+
+        answers.push(words[index]);
+
+        words[index] = "_____";
+    });
 
     game.innerHTML = `
-        <h2>Fill in the Blank</h2>
 
-        <p style="font-size:30px;">
-            ${words.join(" ")}
-        </p>
+    <h2>Fill in the blanks</h2>
 
-        <input id="blankInput"
-        placeholder="Missing word">
+    <p style="font-size:30px;">
+    ${words.join(" ")}
+    </p>
 
-        <br><br>
+    <input id="blankInput"
+    placeholder="Separate answers with commas">
 
-        <button onclick="checkBlank('${answer.toLowerCase()}')">
-            Check
-        </button>
+    <br><br>
+
+    <button onclick='checkBlank(${JSON.stringify(answers)})'>
+    Check
+    </button>
+
     `;
 }
 
-function checkBlank(answer){
+function checkBlank(answers){
 
     const user =
     document.getElementById("blankInput")
     .value
-    .trim()
-    .toLowerCase();
+    .toLowerCase()
+    .split(",")
+    .map(x => x.trim());
 
-    if(user === answer){
+    const correct =
+    JSON.stringify(user) ===
+    JSON.stringify(
+        answers.map(x => x.toLowerCase())
+    );
 
-        result.innerHTML = "Correct!";
+    if(correct){
+
+        result.innerHTML =
+        `<span class="correct">
+        Correct!
+        </span>`;
+
+        updateScore(true);
 
     } else {
 
         result.innerHTML =
-        `Wrong! Correct answer: ${answer}`;
+        `<span class="wrong">
+        Wrong!
+        </span>
+        <br><br>
+        Correct:
+        ${answers.join(", ")}`;
+
+        updateScore(false);
     }
 }
 
-//////////////////////////
+////////////////////////////////////////////////////
 // MULTIPLE CHOICE
-//////////////////////////
+////////////////////////////////////////////////////
 
 function startMultipleChoice(){
 
@@ -348,6 +486,7 @@ function startMultipleChoice(){
         ];
 
         if(!choices.includes(randomWord)){
+
             choices.push(randomWord);
         }
     }
@@ -355,16 +494,19 @@ function startMultipleChoice(){
     shuffle(choices);
 
     game.innerHTML = `
-        <h2>Multiple Choice Blank</h2>
 
-        <p style="font-size:30px;">
-            ${words.join(" ")}
-        </p>
+    <h2>Multiple Choice</h2>
+
+    <p style="font-size:30px;">
+    ${words.join(" ")}
+    </p>
+
     `;
 
     choices.forEach(choice => {
 
-        const btn = document.createElement("button");
+        const btn =
+        document.createElement("button");
 
         btn.className = "choiceBtn";
 
@@ -372,19 +514,146 @@ function startMultipleChoice(){
 
         btn.onclick = () => {
 
-            if(choice.toLowerCase() === answer.toLowerCase()){
+            if(choice === answer){
 
-                result.innerHTML = "Correct!";
+                result.innerHTML =
+                `<span class="correct">
+                Correct!
+                </span>`;
+
+                updateScore(true);
 
             } else {
 
                 result.innerHTML =
-                `Wrong! Correct answer: ${answer}`;
+                `<span class="wrong">
+                Wrong!
+                </span>
+                <br><br>
+                Correct:
+                ${answer}`;
+
+                updateScore(false);
             }
         };
 
         game.appendChild(btn);
     });
+}
+
+////////////////////////////////////////////////////
+// LIGHTNING MODE
+////////////////////////////////////////////////////
+
+let timer;
+let timeLeft = 15;
+
+function startLightning(){
+
+    result.innerHTML = "";
+
+    timeLeft = 15;
+
+    currentLine =
+    lines[Math.floor(Math.random()*lines.length)];
+
+    game.innerHTML = `
+
+    <h2>Lightning Mode</h2>
+
+    <p id="timer"
+    style="font-size:26px;color:#facc15;">
+    Time Left: 15
+    </p>
+
+    <p style="font-size:30px;">
+    ${currentLine}
+    </p>
+
+    <button onclick="startLightningTyping()">
+    Start
+    </button>
+
+    `;
+}
+
+function startLightningTyping(){
+
+    game.innerHTML = `
+
+    <h2>Lightning Mode</h2>
+
+    <p id="timer"
+    style="font-size:26px;color:#facc15;">
+    Time Left: 15
+    </p>
+
+    <input id="lightningInput"
+    placeholder="Type fast">
+
+    <br><br>
+
+    <button onclick="checkLightning()">
+    Submit
+    </button>
+
+    `;
+
+    timer = setInterval(() => {
+
+        timeLeft--;
+
+        document.getElementById("timer")
+        .innerText =
+        "Time Left: " + timeLeft;
+
+        if(timeLeft <= 0){
+
+            clearInterval(timer);
+
+            result.innerHTML =
+            `<span class="wrong">
+            Time's up!
+            </span>
+            <br><br>
+            ${currentLine}`;
+
+            updateScore(false);
+        }
+
+    },1000);
+}
+
+function checkLightning(){
+
+    clearInterval(timer);
+
+    const user =
+    document.getElementById("lightningInput")
+    .value
+    .trim()
+    .toLowerCase();
+
+    if(user === currentLine.toLowerCase()){
+
+        result.innerHTML =
+        `<span class="correct">
+        Correct!
+        </span>`;
+
+        updateScore(true);
+
+    } else {
+
+        result.innerHTML =
+        `<span class="wrong">
+        Wrong!
+        </span>
+        <br><br>
+        ${currentLine}`;
+
+        updateScore(false);
+    }
 }
 
 </script>
